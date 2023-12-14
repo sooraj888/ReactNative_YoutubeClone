@@ -1,10 +1,32 @@
 import React from 'react';
-import {Text, View} from 'react-native';
+import {Button, Text, View} from 'react-native';
+import {useMyContext} from '../../../context/Context';
 
 export default function HomeScreen() {
+  const {setTheme, setVideoScreenStatus, videoScreenStatus, isPlaying} =
+    useMyContext();
   return (
     <View>
-      <Text>HomeScreen</Text>
+      <Text>SettingsScreen{String(isPlaying)}</Text>
+      <Button
+        title="Open"
+        onPress={() => {
+          setVideoScreenStatus('opened');
+        }}
+      />
+
+      <Button
+        title="minimize"
+        onPress={() => {
+          setVideoScreenStatus('minimized');
+        }}
+      />
+      <Button
+        title="close"
+        onPress={() => {
+          setVideoScreenStatus('closed');
+        }}
+      />
     </View>
   );
 }

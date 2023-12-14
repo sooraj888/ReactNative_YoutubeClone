@@ -10,12 +10,15 @@ import {
   NavigationRouteContext,
   ParamListBase,
   TabNavigationState,
+  useIsFocused,
   useLinkBuilder,
   useTheme,
 } from '@react-navigation/native';
 import React, {createRef, useContext, useEffect, useRef, useState} from 'react';
 import {
+  Alert,
   Animated,
+  BackHandler,
   Button,
   Dimensions,
   LayoutChangeEvent,
@@ -43,8 +46,9 @@ import {
 // import BottomTabBarHeightCallbackContext from '../utils/BottomTabBarHeightCallbackContext';
 import useIsKeyboardShown from '@react-navigation/bottom-tabs/src/utils/useIsKeyboardShown';
 import BottomTabItem from '@react-navigation/bottom-tabs/src/views/BottomTabItem';
-import {useMyContext} from '../../../context/Context';
+import {useMyContext} from '../../../../context/Context';
 import {create} from 'react-test-renderer';
+import OverlayVideoScreen from './OverlayVideoScreen';
 
 type Props = BottomTabBarProps & {
   style?: Animated.WithAnimatedValue<StyleProp<ViewStyle>>;
@@ -326,7 +330,7 @@ export default function BottomTabBar({
     }).start(({finished}) => {
       if (finished) {
         if (!isHide) {
-          hideStatusBar(true);
+          hideStatusBar(false);
         }
       }
     });
@@ -380,8 +384,26 @@ export default function BottomTabBar({
     }
   }, [videoScreenStatus, orientation, sc.height, heightAnimation]);
 
+  const isFocused = useIsFocused();
+
+  useEffect(() => {
+    if (videoScreenStatus === 'opened') {
+      const backAction = () => {
+        setVideoScreenStatus('minimized');
+        return true;
+      };
+
+      const backHandler = BackHandler.addEventListener(
+        'hardwareBackPress',
+        backAction,
+      );
+
+      return () => backHandler.remove();
+    }
+  }, [isFocused, videoScreenStatus]);
+
   return (
-    <View style={{backgroundColor: 'red'}}>
+    <>
       <Animated.View
         ref={videoScreenRef}
         style={{
@@ -405,37 +427,7 @@ export default function BottomTabBar({
           }),
           zIndex: 7,
         }}>
-        <View>
-          <Text style={{color: 'white'}}>
-            {theme}
-            {String(isPlaying)}
-          </Text>
-          <Button
-            title="Open"
-            onPress={() => {
-              setVideoScreenStatus('opened');
-            }}
-          />
-
-          <Button
-            title="minimize"
-            onPress={() => {
-              setVideoScreenStatus('minimized');
-            }}
-          />
-          <Button
-            title="close"
-            onPress={() => {
-              setVideoScreenStatus('closed');
-            }}
-          />
-          <Button
-            title={isPlaying ? 'pause' : 'Play'}
-            onPress={() => {
-              setIsPlaying(prev => !prev);
-            }}
-          />
-        </View>
+        <OverlayVideoScreen />
       </Animated.View>
       <Animated.View
         style={[
@@ -555,7 +547,7 @@ export default function BottomTabBar({
           })}
         </View>
       </Animated.View>
-    </View>
+    </>
   );
 }
 

@@ -1,10 +1,10 @@
-import React, {useContext} from 'react';
-import {Button, Text, View} from 'react-native';
+import React, {useContext, useEffect} from 'react';
+import {Alert, BackHandler, Button, Text, View} from 'react-native';
 import {useMyContext} from '../../../context/Context';
+import {useIsFocused} from '@react-navigation/native';
 
-export default function SettingsScreen() {
-  const {setTheme, setVideoScreenStatus, videoScreenStatus, isPlaying} =
-    useMyContext();
+export default function SettingsScreen({navigation}: any) {
+  const {setVideoScreenStatus, isPlaying} = useMyContext();
 
   return (
     <View>
